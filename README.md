@@ -10,4 +10,4 @@ Requires Psychtoolbox extension in MATLAB .
 ## Prosody Paradigms:
 - Emo_id.m - prosody identification paradigm, repeated twice at two different sound levels.
 - ComplexSound.m - roving prosody MMN paradigm with an attention manipulation. Only frustration and delight preseneted (x2 different voices; presented 3 or 6 times before speaker/prosody change)
-- ProsodyStimuli.zip. - prosodic stimuli used
+- ProsodyStim.zip - prosodic stimuli used
