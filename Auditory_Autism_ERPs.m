@@ -1,42 +1,42 @@
-% to analyse EEG data using EEGLAB and ERPLAB
-% Simple_tone and Complex_sound
-% Delays from trig onset to start of stim = 300ms (simple=240ms,
-% complex=370ms)
+%% To analyse EEG data from AuditoryInAutism study using EEGLAB and ERPLAB
+% Simple_tone = simple roving pitch EEG
+% Complex_sound = complex roving prosody EEG
 
 clear all
+% close all
 
 eeglab
 
-path = pwd;
-eegpath = '~/Documents/MATLAB/';
+path = '~/Documents/'; % path for .bdf files
+eegpath = '~/Documents/MATLAB/'; % path where EEGLAB is housed
 
+% Subject identifiers
 P = {'A1' 'A2' 'A3' 'A4' 'A5' 'A6' 'A7' 'A8' 'A9' 'A10' 'A11' 'A12' 'A13' 'A14' 'A15' 'A16' 'A17' 'A18' 'A19' 'A20' 'A21' 'A22' 'A23' 'A24' 'A25'...};
     'C1' 'C2' 'C3' 'C4' 'C5' 'C6' 'C7' 'C8' 'C9' 'C10' 'C11' 'C12' 'C13' 'C14' 'C15' 'C16' 'C17' 'C18' 'C19' 'C20' 'C21' 'C22' 'C23' 'C24' 'C25' 'C26' 'C27' 'C28'};
 [~, szP] = size(P);
 
-mods = {'SimpleTone' 'ComplexSound'};
+mods = {'SimpleTone' 'ComplexSound'}; % the roving pitch and prosody recordings
 [~, szMods] = size(mods);
 alt = 0;
 
+%% Preprocess: re-reference to average mastoids, add channel locations,
+% filter, and save as .set file
 for j = 1:szP
     for i = 1:szMods
         pathup = [path P{j} '/' mods{i} '/'];
-        if alt == 1
-            EEG = pop_loadset('filename',[P{j} '_' mods{i} '.set'],'filepath',pathup);
-            EEG=pop_chanedit(EEG, 'lookup',[ eegpath 'eeglab14_1_2b/plugins/dipfit2.3/NARSAD_cap_try.ced'],'load',{'/Users/sarahhaigh/Documents/MATLAB/eeglab14_1_2b/plugins/dipfit2.3/NARSAD_cap_copy.ced' 'filetype' 'chanedit'});
-        else
-            EEG = pop_biosig([pathup P{j} '_' mods{i} '.bdf'], 'ref',[129 130] ,'refoptions',{'keepref' 'off'});
-            EEG.setname=[P(j) '_' mods(i)];
-            EEG = eeg_checkset( EEG );
-            EEG=pop_chanedit(EEG, 'lookup',[ eegpath 'eeglab14_1_2b/plugins/dipfit2.3/NARSAD_cap_try.ced']);
-            EEG = eeg_checkset( EEG );
-        end
+        EEG = pop_biosig([pathup P{j} '_' mods{i} '.bdf'], 'ref',[129 130] ,'refoptions',{'keepref' 'off'});
+        EEG.setname=[P(j) '_' mods(i)];
+        EEG = eeg_checkset( EEG );
+        EEG=pop_chanedit(EEG, 'lookup',[ eegpath 'eeglab14_1_2b/plugins/dipfit2.3/NARSAD_cap_try.ced']);
+        EEG = eeg_checkset( EEG );
         EEG = pop_eegfiltnew(EEG, 0.1,100,16896,0,[],0);
-        EEG = eeg_checkset( EEG );       
+        EEG = eeg_checkset( EEG );
         EEG = pop_saveset( EEG, 'filename',[P{j} '_' mods{i} '_filt.set'],'filepath',pathup);
     end
 end
 
+% Visually check all channels to identify if any need to be interpolated
+% If no channels need to be interpreted, then run...
 for j = 1:szP
     for i = 1:szMods
         pathup = [path P{j} '/' mods{i} '/'];
@@ -45,6 +45,7 @@ for j = 1:szP
     end
 end
 
+% Run Independent Components Analysis (ICA)
 for j = 1:szP
     for i = 1:szMods
         pathup = [path P{j} '/' mods{i} '/'];
@@ -59,18 +60,24 @@ for j = 1:szP
     end
 end
 
+% Visually check components and remove horizontal eye movements, blinks,
+% and heart beat.
+
+%% Processing: identify triggers, epoch, filter, artifact reject, average, 
+% calculate SE in signals, and save.
+% There was a consistent delay between the trigger and the stimulus onset 
+% which was corrected for here.
 for j = 1:szP
-    for i = 1:szMods
+    for i = 1%:szMods
         pathup = [path P{j} '/' mods{i} '/'];
         EEG = pop_loadset('filename',[P{j} '_' mods{i} '_postica_pruned.set'],'filepath',pathup);
-        EEG = pop_select( EEG,'nochannel',{'LO1' 'LO2' 'IO1' 'SO1' 'IO2' 'GSR1' 'GSR2' 'Erg1' 'Erg2' 'Resp' 'Plet' 'Temp' 'EXG3' 'EXG4' 'EXG5' 'EXG6' 'EXG7'});
         if strmatch('Simple',mods{i})
             for n = 1:length(EEG.event)
                 EEG.event(n).latency = EEG.event(n).latency+(298/2);
             end
         else
             for n = 2:length(EEG.event)
-                EEG.event(n).latency = EEG.event(n).latency+(300/2);%430/2);
+                EEG.event(n).latency = EEG.event(n).latency+(300/2);
             end
         end
         EEG  = pop_creabasiceventlist( EEG , 'AlphanumericCleaning', 'on', 'BoundaryNumeric', { -99 }, 'BoundaryString', { 'boundary' }, 'Eventlist',...
@@ -95,14 +102,15 @@ for j = 1:szP
         ERP = make_SEM_set(ERP,'gui',1);        
         ERP = pop_savemyerp(ERP, 'erpname',...
             [P{j} '_' mods{i} '_SEM'], 'filename', [P{j} '_' mods{i} '_SEM.erp'], 'filepath', pathup, 'Warning', 'off');        
-
     end
 end
 
-% Create simple ASD grand averages
-ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/SimpleTone_ASDgrandAvg.txt' , 'ExcludeNullBin', 'on' );
+%% Create grand averages for simple pitch responses, and plot
+
+% Create simple (pitch) grand averages for autism group
+ERP = pop_gaverager( [path 'SimpleTone_ASDgrandAvg.txt'] , 'ExcludeNullBin', 'on' );
 ERP = pop_savemyerp(ERP, 'erpname',...
- 'Simple_ASDgrandAvg', 'filename', 'Simple_ASDgrandAvg.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
+ 'Simple_ASDgrandAvg', 'filename', 'Simple_ASDgrandAvg.erp', 'filepath', path, 'Warning', 'off');
 
 % Create small change
 ERP = pop_binoperator( ERP, {  'bin33=(b9+b11+b15+b17)/4'});
@@ -172,10 +180,13 @@ ERP = pop_ploterps( ERP,  47:48,  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05
  'on', 'Position', [ 68.6429 15.0714 106.857 31.9286], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -50.0 330.0   -50 0:100:300 ],...
  'YDir', 'normal', 'yscale', [ -4.0 5.0   -3:3:3 ] );
 
-% Create simple HC grand averages
-ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/SimpleTone_HCgrandAvg.txt' , 'ExcludeNullBin', 'on' );
+
+
+
+% Create simple (pitch) grand averages for neurotypical control group
+ERP = pop_gaverager( [path 'SimpleTone_HCgrandAvg.txt'] , 'ExcludeNullBin', 'on' );
 ERP = pop_savemyerp(ERP, 'erpname',...
- 'Simple_HCgrandAvg', 'filename', 'Simple_HCgrandAvg.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
+ 'Simple_HCgrandAvg', 'filename', 'Simple_HCgrandAvg.erp', 'filepath', path, 'Warning', 'off');
 
 % Create small change
 ERP = pop_binoperator( ERP, {  'bin33=(b9+b11+b15+b17)/4'});
@@ -245,10 +256,11 @@ ERP = pop_ploterps( ERP,  47:48,  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05
  'on', 'Position', [ 68.6429 15.0714 106.857 31.9286], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -50.0 330.0   -50 0:100:300 ],...
  'YDir', 'normal', 'yscale', [ -4.0 5.0   -3:3:3 ] );
 
-%% Create simple SEM
-ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/SimpleTone_ASDgrandAvg_SEM.txt' , 'ExcludeNullBin', 'on' );
+
+%% Create simple pitch grand average SEM in responses
+ERP = pop_gaverager( [path 'SimpleTone_ASDgrandAvg_SEM.txt'] , 'ExcludeNullBin', 'on' );
 ERP = pop_savemyerp(ERP, 'erpname',...
- 'Simple_ASDgrandAvg_SEM', 'filename', 'Simple_ASDgrandAvg_SEM.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
+ 'Simple_ASDgrandAvg_SEM', 'filename', 'Simple_ASDgrandAvg_SEM.erp', 'filepath', path, 'Warning', 'off');
 
 % Create small change
 ERP = pop_binoperator( ERP, {  'bin33=(b9+b11+b15+b17)/4'});
@@ -268,9 +280,9 @@ ERP = pop_ploterps( ERP,  37:38,  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05
  'on', 'Position', [ 68.6429 15.0714 106.857 31.9286], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -50.0 330.0   -50 0:100:300 ],...
  'YDir', 'normal', 'yscale', [ 0 5.0   0:1:5 ] );
 
-ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/SimpleTone_HCgrandAvg_SEM.txt' , 'ExcludeNullBin', 'on' );
+ERP = pop_gaverager( [path 'SimpleTone_HCgrandAvg_SEM.txt'] , 'ExcludeNullBin', 'on' );
 ERP = pop_savemyerp(ERP, 'erpname',...
- 'Simple_HCgrandAvg_SEM', 'filename', 'Simple_HCgrandAvg_SEM.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
+ 'Simple_HCgrandAvg_SEM', 'filename', 'Simple_HCgrandAvg_SEM.erp', 'filepath', path, 'Warning', 'off');
 
 % Create small change
 ERP = pop_binoperator( ERP, {  'bin33=(b9+b11+b15+b17)/4'});
@@ -290,7 +302,10 @@ ERP = pop_ploterps( ERP,  37:38,  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05
  'on', 'Position', [ 68.6429 15.0714 106.857 31.9286], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -50.0 330.0   -50 0:100:300 ],...
  'YDir', 'normal', 'yscale', [ 0 5.0   0:1:5 ] );
 
-%% Create complex ASD grand averages
+
+%% Create grand averages for complex prosodic responses, and plot
+
+% Create complex (prosody) grand averages for autism group
 ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/Complex_ASDgrandAvg.txt' , 'ExcludeNullBin', 'on' );
 ERP = pop_savemyerp(ERP, 'erpname',...
  'Complex_ASDgrandAvg', 'filename', 'Complex_ASDgrandAvg.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
@@ -319,7 +334,10 @@ ERP = pop_ploterps( ERP, [ 35:38],  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.
  'Position', [ 34.75 10.8333 106.875 31.9444], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -150.0 650.0   -100 0:200:650 ],...
  'YDir', 'normal', 'yscale', [ -6.0 8.0   -6:6:6 ] );
 
-%% Create complex HC grand averages
+
+
+
+% Create complex (prosody) grand averages for neurotypical control group
 ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/Complex_HCgrandAvg.txt' , 'ExcludeNullBin', 'on' );
 ERP = pop_savemyerp(ERP, 'erpname',...
  'Complex_HCgrandAvg', 'filename', 'Complex_HCgrandAvg.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
@@ -344,6 +362,36 @@ ERP = pop_binoperator( ERP, {  'bin37=b25-b33'});
 ERP = pop_binoperator( ERP, {  'bin38=b26-b34'});
 
 ERP = pop_ploterps( ERP, [ 35:38],  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box', [ 3 3], 'ChLabel', 'on', 'FontSizeChan',...
+  1, 'FontSizeLeg',  1, 'FontSizeTicks',  20, 'LegPos', 'bottom', 'Linespec', {'k-' , 'r-', 'b-', 'g-' }, 'LineWidth',  5, 'Maximize', 'on',...
+ 'Position', [ 34.75 10.8333 106.875 31.9444], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -150.0 650.0   -100 0:200:650 ],...
+ 'YDir', 'normal', 'yscale', [ -6.0 8.0   -6:6:6 ] );
+
+
+%% Create complex (prosody) SEM averages
+ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/Complex_ASDgrandAvg_SEM.txt' , 'ExcludeNullBin', 'on' );
+ERP = pop_savemyerp(ERP, 'erpname',...
+ 'Complex_ASDgrandAvg_SEM', 'filename', 'Complex_ASDgrandAvg_SEM.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
+
+ERP = pop_ploterps( ERP, [ 23 25 27 29],  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box', [ 3 3], 'ChLabel', 'on', 'FontSizeChan',...
+  1, 'FontSizeLeg',  1, 'FontSizeTicks',  20, 'LegPos', 'bottom', 'Linespec', {'k-' , 'r-', 'b-', 'g-' }, 'LineWidth',  5, 'Maximize', 'on',...
+ 'Position', [ 34.75 10.8333 106.875 31.9444], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -150.0 650.0   -100 0:200:650 ],...
+ 'YDir', 'normal', 'yscale', [ -6.0 8.0   -6:6:6 ] );
+
+ERP = pop_ploterps( ERP, [ 31:34],  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box', [ 3 3], 'ChLabel', 'on', 'FontSizeChan',...
+  1, 'FontSizeLeg',  1, 'FontSizeTicks',  20, 'LegPos', 'bottom', 'Linespec', {'k-' , 'r-', 'b-', 'g-' }, 'LineWidth',  5, 'Maximize', 'on',...
+ 'Position', [ 34.75 10.8333 106.875 31.9444], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -150.0 650.0   -100 0:200:650 ],...
+ 'YDir', 'normal', 'yscale', [ -6.0 8.0   -6:6:6 ] );
+
+ERP = pop_gaverager( '/Volumes/MyPassportC/NARSAD/Complex_HCgrandAvg_SEM.txt' , 'ExcludeNullBin', 'on' );
+ERP = pop_savemyerp(ERP, 'erpname',...
+ 'Complex_HCgrandAvg_SEM', 'filename', 'Complex_HCgrandAvg_SEM.erp', 'filepath', '/Volumes/MyPassportC/NARSAD', 'Warning', 'off');
+
+ERP = pop_ploterps( ERP, [ 23 25 27 29],  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box', [ 3 3], 'ChLabel', 'on', 'FontSizeChan',...
+  1, 'FontSizeLeg',  1, 'FontSizeTicks',  20, 'LegPos', 'bottom', 'Linespec', {'k-' , 'r-', 'b-', 'g-' }, 'LineWidth',  5, 'Maximize', 'on',...
+ 'Position', [ 34.75 10.8333 106.875 31.9444], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -150.0 650.0   -100 0:200:650 ],...
+ 'YDir', 'normal', 'yscale', [ -6.0 8.0   -6:6:6 ] );
+
+ERP = pop_ploterps( ERP, [ 31:34],  [ 6 7 11 22 36 40 16 17 45] , 'Axsize', [ 0.05 0.08], 'BinNum', 'on', 'Blc', 'pre', 'Box', [ 3 3], 'ChLabel', 'on', 'FontSizeChan',...
   1, 'FontSizeLeg',  1, 'FontSizeTicks',  20, 'LegPos', 'bottom', 'Linespec', {'k-' , 'r-', 'b-', 'g-' }, 'LineWidth',  5, 'Maximize', 'on',...
  'Position', [ 34.75 10.8333 106.875 31.9444], 'Style', 'Classic', 'Tag', 'ERP_figure', 'Transparency',  0, 'xscale', [ -150.0 650.0   -100 0:200:650 ],...
  'YDir', 'normal', 'yscale', [ -6.0 8.0   -6:6:6 ] );
