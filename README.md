@@ -11,3 +11,6 @@ Requires Psychtoolbox extension in MATLAB .
 - Emo_id.m - prosody identification paradigm, repeated twice at two different sound levels.
 - ComplexSound.m - roving prosody MMN paradigm with an attention manipulation. Only frustration and delight preseneted (x2 different voices; presented 3 or 6 times before speaker/prosody change)
 - ProsodyStim.zip - prosodic stimuli used
+
+## ERP Analysis:
+See Auditory_Autism_ERPs.m for EEGLAB and ERPLAB code on data analysis steps and how plots were generated.
