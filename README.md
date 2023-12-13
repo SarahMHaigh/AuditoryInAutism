@@ -1,9 +1,10 @@
 # Auditory In Autism
 
 Project published in:
-1) Hyper-Sensitivity to Pitch and Poorer Prosody Processing in Adults with Autism: an ERP Study by Sarah M Haigh, Patricia Brosseau, Shaun M Eack, David I Leitman, Dean F Salisbury, & Marlene Behrmann (2022). Frontiers in Psychiatry: Autism. 131. https://doi.org/10.3389/fpsyt.2022.844830
+1) "Hyper-Sensitivity to Pitch and Poorer Prosody Processing in Adults with Autism: an ERP Study" by Sarah M Haigh, Patricia Brosseau, Shaun M Eack, David I Leitman, Dean F Salisbury, & Marlene Behrmann (2022). Frontiers in Psychiatry: Autism. 131. https://doi.org/10.3389/fpsyt.2022.844830
 
-2) Assessing Trial-to-Trial Variability in Auditory ERPs in Autism and Schizophrenia. Sarah M Haigh, Laura Van Key, Pat Brosseau, Shaun M Eack, David I Leitman, Dean F Salisbury & Marlene Behrmann (accepted). S.I.: Developmental Approach and Targeted Treatment of Sensory Alterations. Journal of Autism and Developmental Disorders.
+2) "Assessing Trial-to-Trial Variability in Auditory ERPs in Autism and Schizophrenia" by Sarah M Haigh, Laura Van Key, Pat Brosseau, Shaun M Eack, David I Leitman, Dean F Salisbury & Marlene Behrmann (2022). S.I.: Developmental Approach and Targeted Treatment of Sensory Alterations. Journal of Autism and Developmental Disorders. 53(12), 4856-4871. https://doi.org/10.1007/s10803-022-05771-0
+
 
 There are two main components to the study: pitch-deviant detection (low-level/early processing) and prosody-deviant detection (high-level/late processing). For both components, there is a behavioral and an EEG section.
 
