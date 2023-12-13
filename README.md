@@ -26,3 +26,5 @@ See Auditory_Autism_ERPs.m for EEGLAB and ERPLAB code on data analysis steps and
 For access to data, see: https://osf.io/pnvay/
 
 ---------------------
+
+Questions? Email shaigh at unr dot edu
