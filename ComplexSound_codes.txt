@@ -1,0 +1,137 @@
+bin 1
+Delight1s
+.{1}
+
+bin 2
+Delight2s
+.{2}
+
+bin 3
+Frustration1s
+.{3}
+
+bin 4
+Frustration2s
+.{4}
+
+bin 5
+Delight1l
+.{5}
+
+bin 6
+Delight2l
+.{6}
+
+bin 7
+Frustration1l
+.{7}
+
+bin 8
+Frustration2l
+.{8}
+
+bin 9
+Button_press
+.{11}
+
+bin 10
+Attend_cross
+.{12}
+
+bin 11
+D1_D2
+{1;5}.{2;6}
+
+bin 12
+D2_D1
+{2;6}.{1;5}
+
+bin 13
+F1_F2
+{3;7}.{4;8}
+
+bin 14
+F2_F1
+{4;8}.{3;7}
+
+bin 15
+D1_F1
+{1;5}.{3;7}
+
+bin 16
+F1_D1
+{3;7}.{1;5}
+
+bin 17
+D2_F2
+{2;6}.{4;8}
+
+bin 18
+F2_D2
+{4;8}.{2;6}
+
+bin 19
+D1_F2
+{1;5}.{4;8}
+
+bin 20
+F2_D1
+{4;8}.{1;5}
+
+bin 21
+D2_F1
+{2;6}.{3;7}
+
+bin 22
+F1_D2
+{3;7}.{2;6}
+
+bin 23
+Ds_F
+{1;2}.{3;4;7;8}
+
+bin 24
+Ds_D
+{1;2}.{1;2;5;6}
+
+bin 25
+Dl_F
+{5;6}.{3;4;7;8}
+
+bin 26
+Dl_D
+{5;6}.{1;2;5;6}
+
+bin 27
+Fs_D
+{3;4}.{1;2;5;6}
+
+bin 28
+Fs_F
+{3;4}.{3;4;7;8}
+
+bin 29
+Fl_D
+{7;8}.{1;2;5;6}
+
+bin 30
+Fl_F
+{7;8}.{3;4;7;8}
+
+bin 31
+stand_Ds
+.{1;2}{3;4;7;8}
+
+bin 32
+stand_Dl
+.{5;6}{3;4;7;8}
+
+bin 33
+stand_Fs
+.{3;4}{1;2;5;6}
+
+bin 34
+stand_Fl
+.{7;8}{1;2;5;6}
+
+ 
