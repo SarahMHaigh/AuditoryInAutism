@@ -22,9 +22,12 @@ Requires Psychtoolbox extension in MATLAB .
 ## ERP Analysis:
 See Auditory_Autism_ERPs.m for EEGLAB and ERPLAB code on data analysis steps and how plots were generated.
 
+## Data Availability:
+See here: https://nevada.box.com/s/2vjjtyaqa0j7hecqwzg3oyozexd95vs6
+
 ---------------------
 
-For access to data, see: https://doi.org/10.17605/OSF.IO/PNVAY
+Project doi: https://doi.org/10.17605/OSF.IO/PNVAY
 
 ---------------------
 
