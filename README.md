@@ -29,4 +29,5 @@ For access to data, see: https://doi.org/10.17605/OSF.IO/PNVAY
 ---------------------
 
 Questions? Email shaigh at unr dot edu
+
 For more information, see: https://sarahmhaigh.github.io/
